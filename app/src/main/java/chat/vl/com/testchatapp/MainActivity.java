@@ -1,33 +1,29 @@
 package chat.vl.com.testchatapp;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.Toolbar;
+import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.widget.Button;
+import android.view.View;
 import android.widget.EditText;
-import android.text.TextUtils;
 import android.widget.ImageView;
-
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
-
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import ai.api.AIDataService;
 import ai.api.AIListener;
 import ai.api.AIServiceException;
@@ -37,17 +33,11 @@ import ai.api.model.AIError;
 import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
-import android.content.pm.PackageManager;
-import android.support.v4.content.ContextCompat;
-import android.speech.tts.TextToSpeech;
-
-import android.content.Intent;
-import android.speech.RecognizerIntent;
-import android.content.ActivityNotFoundException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity implements AIListener {
 
@@ -102,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         linearLayoutManager.setStackFromEnd(true);
         msgRecyclerView.setLayoutManager(linearLayoutManager);
 
-        final AIConfiguration config = new AIConfiguration("API KEY",
+        final AIConfiguration config = new AIConfiguration("b47de9088ecf46f38c4c6bd323975325",
                 AIConfiguration.SupportedLanguages.English,
                 AIConfiguration.RecognitionEngine.System);
 
@@ -141,46 +131,46 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
                     aiRequest.setQuery(msgContent);
 
-                        new AsyncTask<AIRequest,Void,AIResponse>(){
+                    new AsyncTask<AIRequest,Void,AIResponse>(){
 
-                            @Override
-                            protected AIResponse doInBackground(AIRequest... aiRequests) {
-                                final AIRequest request = aiRequests[0];
-                                try {
-                                    final AIResponse response = aiDataService.request(aiRequest);
-                                    return response;
-                                } catch (AIServiceException e)
-                                    {
-                                    }
-                                return null;
+                        @Override
+                        protected AIResponse doInBackground(AIRequest... aiRequests) {
+                            final AIRequest request = aiRequests[0];
+                            try {
+                                final AIResponse response = aiDataService.request(aiRequest);
+                                return response;
+                            } catch (AIServiceException e)
+                            {
                             }
-                            @Override
-                            protected void onPostExecute(AIResponse response) {
-                                if (response != null) {
+                            return null;
+                        }
+                        @Override
+                        protected void onPostExecute(AIResponse response) {
+                            if (response != null) {
 
-                                    Result result = response.getResult();
-                                    String reply = result.getFulfillment().getSpeech();
+                                Result result = response.getResult();
+                                String reply = result.getFulfillment().getSpeech();
 
-                                    ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_RECEIVED, reply);
-                                    msgDtoList.add(msgDto);
-                                    chatAppMsgAdapter.notifyDataSetChanged();
-                                    int newMsgPosition = msgDtoList.size() - 1;
-                                    // Notify recycler view insert one new data.
-                                    chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
-                                    // Scroll RecyclerView to the last message.
-                                    msgRecyclerView.scrollToPosition(newMsgPosition);
-                                }
+                                ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_RECEIVED, reply);
+                                msgDtoList.add(msgDto);
+                                chatAppMsgAdapter.notifyDataSetChanged();
+                                int newMsgPosition = msgDtoList.size() - 1;
+                                // Notify recycler view insert one new data.
+                                chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
+                                // Scroll RecyclerView to the last message.
+                                msgRecyclerView.scrollToPosition(newMsgPosition);
                             }
-                        }.execute(aiRequest);
+                        }
+                    }.execute(aiRequest);
                 }
                 else
                 {
-                   promptSpeechInput();
+                    promptSpeechInput();
 
                     //if(strText != null) {
                     // Add a new sent message to the list.
-                   // ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_SENT, text);
-                   // msgDtoList.add(msgDto);
+                    // ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_SENT, text);
+                    // msgDtoList.add(msgDto);
 
                     //chatAppMsgAdapter.notifyDataSetChanged();
 
@@ -219,11 +209,11 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
 
                 if (s.toString().trim().length()!=0 && flagFab){
-                    ImageViewAnimatedChange(MainActivity.this,fab_img,img);
+                  ImageViewAnimatedChange(MainActivity.this,fab_img,img);
                     flagFab=false;
                 }
                 else if (s.toString().trim().length()==0){
-                    ImageViewAnimatedChange(MainActivity.this,fab_img,img1);
+                  ImageViewAnimatedChange(MainActivity.this,fab_img,img1);
                     flagFab=true;
                 }
             }
@@ -262,11 +252,11 @@ public class MainActivity extends AppCompatActivity implements AIListener {
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             String speechtext = result.get(0).toString();
 
-    int newMsgPosition = msgDtoList.size() - 1;
-    // Notify recycler view insert one new data.
-    chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
-    // Scroll RecyclerView to the last message.
-    msgRecyclerView.scrollToPosition(newMsgPosition);
+            int newMsgPosition = msgDtoList.size() - 1;
+            // Notify recycler view insert one new data.
+            chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
+            // Scroll RecyclerView to the last message.
+            msgRecyclerView.scrollToPosition(newMsgPosition);
 
             // Add a new sent message to the list.
             ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_SENT, speechtext);
@@ -275,43 +265,43 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
             aiRequest.setQuery(speechtext);
 
-                    new AsyncTask<AIRequest,Void,AIResponse>(){
+            new AsyncTask<AIRequest,Void,AIResponse>(){
 
-                        @Override
-                        protected AIResponse doInBackground(AIRequest... aiRequests) {
-                            final AIRequest request = aiRequests[0];
-                            try {
-                                final AIResponse response = aiDataService.request(aiRequest);
-                                return response;
-                            } catch (AIServiceException e)
-                            {
-                            }
-                            return null;
-                        }
-                        @Override
-                        protected void onPostExecute(AIResponse response) {
-                            if (response != null) {
+                @Override
+                protected AIResponse doInBackground(AIRequest... aiRequests) {
+                    final AIRequest request = aiRequests[0];
+                    try {
+                        final AIResponse response = aiDataService.request(aiRequest);
+                        return response;
+                    } catch (AIServiceException e)
+                    {
+                    }
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(AIResponse response) {
+                    if (response != null) {
 
-                                Result result = response.getResult();
-                                String reply = result.getFulfillment().getSpeech();
+                        Result result = response.getResult();
+                        String reply = result.getFulfillment().getSpeech();
 
-                               // if (reply.length()!=0)
-                               // {
-                                ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_RECEIVED, reply);
-                                msgDtoList.add(msgDto);
-                                chatAppMsgAdapter.notifyDataSetChanged();
-                                int newMsgPosition = msgDtoList.size() - 1;
-                                // Notify recycler view insert one new data.
-                                chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
-                                // Scroll RecyclerView to the last message.
-                                msgRecyclerView.scrollToPosition(newMsgPosition);
-                                //speech out
-                                textToSpeech.speak(reply, TextToSpeech.QUEUE_FLUSH, null);
-                              //  }
+                        // if (reply.length()!=0)
+                        // {
+                        ChatAppMsgDTO msgDto = new ChatAppMsgDTO(ChatAppMsgDTO.MSG_TYPE_RECEIVED, reply);
+                        msgDtoList.add(msgDto);
+                        chatAppMsgAdapter.notifyDataSetChanged();
+                        int newMsgPosition = msgDtoList.size() - 1;
+                        // Notify recycler view insert one new data.
+                        chatAppMsgAdapter.notifyItemInserted(newMsgPosition);
+                        // Scroll RecyclerView to the last message.
+                        msgRecyclerView.scrollToPosition(newMsgPosition);
+                        //speech out
+                        textToSpeech.speak(reply, TextToSpeech.QUEUE_FLUSH, null);
+                        //  }
 
-                            }
-                        }
-                    }.execute(aiRequest);
+                    }
+                }
+            }.execute(aiRequest);
 
             //ai service listening
             aiService.startListening();
@@ -343,13 +333,13 @@ public class MainActivity extends AppCompatActivity implements AIListener {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -366,32 +356,31 @@ public class MainActivity extends AppCompatActivity implements AIListener {
     }
 
     public void ImageViewAnimatedChange(Context c, final ImageView v, final Bitmap new_image) {
-        final Animation anim_out = AnimationUtils.loadAnimation(c, R.anim.zoom_out);
-        final Animation anim_in  = AnimationUtils.loadAnimation(c, R.anim.zoom_in);
-        anim_out.setAnimationListener(new Animation.AnimationListener()
-        {
-            @Override public void onAnimationStart(Animation animation) {}
-            @Override public void onAnimationRepeat(Animation animation) {}
-            @Override public void onAnimationEnd(Animation animation)
-            {
-                v.setImageBitmap(new_image);
-                anim_in.setAnimationListener(new Animation.AnimationListener() {
-                    @Override public void onAnimationStart(Animation animation) {}
-                    @Override public void onAnimationRepeat(Animation animation) {}
-                    @Override public void onAnimationEnd(Animation animation) {}
-                });
-                v.startAnimation(anim_in);
-            }
-        });
-        v.startAnimation(anim_out);
+        v.setImageBitmap(new_image);
+//        final Animation anim_out = AnimationUtils.loadAnimation(c, R.anim.zoom_out);
+//        final Animation anim_in  = AnimationUtils.loadAnimation(c, R.anim.zoom_in);
+//        anim_out.setAnimationListener(new Animation.AnimationListener()
+//        {
+//            @Override public void onAnimationStart(Animation animation) {}
+//            @Override public void onAnimationRepeat(Animation animation) {}
+//            @Override public void onAnimationEnd(Animation animation)
+//            {
+//                v.setImageBitmap(new_image);
+//                anim_in.setAnimationListener(new Animation.AnimationListener() {
+//                    @Override public void onAnimationStart(Animation animation) {}
+//                    @Override public void onAnimationRepeat(Animation animation) {}
+//                    @Override public void onAnimationEnd(Animation animation) {}
+//                });
+//                v.startAnimation(anim_in);
+//            }
+//        });
+//        v.startAnimation(anim_out);
     }
 
     @Override
     public void onResult(AIResponse response) {
 
-        //Toast.makeText(getApplicationContext(), " vl speeking...",Toast.LENGTH_SHORT).show();
-
-        //textToSpeech.speak("ValueLabs", TextToSpeech.QUEUE_FLUSH, null);
+        //Toast.makeText(getApplicationContext(), " vl speeking...",Toast.LENGTH_SHORT).show();        
 
         Result result = response.getResult();
         String message = result.getResolvedQuery();
