@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         linearLayoutManager.setStackFromEnd(true);
         msgRecyclerView.setLayoutManager(linearLayoutManager);
 
-        final AIConfiguration config = new AIConfiguration("b47de9088ecf46f38c4c6bd323975325",
+        final AIConfiguration config = new AIConfiguration("clientAccessToken",
                 AIConfiguration.SupportedLanguages.English,
                 AIConfiguration.RecognitionEngine.System);
 
